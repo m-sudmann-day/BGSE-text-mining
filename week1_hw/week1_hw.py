@@ -1,6 +1,4 @@
 
-######################
-
 import numpy as np
 
 # In my environment, a harmless exception is thrown from the following
@@ -10,91 +8,13 @@ try:
 except Exception:
     pass
 
-from nltk import PorterStemmer
-
-from collections import Counter
-
-"""
-This is a class sherlock. 
-Notice how it is defined with the keyword `class` and a name that begins with a capital letter
-"""
-class Document():
-    
-    """ The Doc class rpresents a class of individul documents
-    
-    """
-    
-    def __init__(self, speech_year, speech_pres, speech_text):
-        """
-        The __init__ method is called everytime an object is instantiated.
-        This is where you will define all the properties of the object that it must have
-        when it is `born`.
-        """
-        
-        #These are data members
-        self.year = speech_year
-        self.pres = speech_pres
-        self.text = speech_text.lower()
-        self.tokens = np.array(wordpunct_tokenize(self.text))
-        
-        
-        
-    def token_clean(self,length):
-
-        """ 
-        description: strip out non-alpha tokens and tokens of length > 'length'
-        input: length: cut off length 
-        """
-
-        self.tokens = np.array([t for t in self.tokens if (t.isalpha() and len(t) > length)])
-
-
-    def stopword_remove(self, stopwords):
-
-        """
-        description: Remove stopwords from tokens.
-        input: stopwords: a suitable list of stopwords
-        """
-
-        
-        self.tokens = np.array([t for t in self.tokens if t not in stopwords])
-
-
-    def stem(self):
-
-        """
-        description: Stem tokens with Porter Stemmer.
-        """
-        
-        self.tokens = np.array([PorterStemmer().stem(t) for t in self.tokens])
-        
-    def demo_self():
-        print 'this will error out'
-
-################
-
-#Instantiating an object.  
-speech1 = Document('1986', 'Rooster', 'this is a chicken')
-print speech1
-
-#Accessing data members
-print speech1.tokens
-
-try:
-    speech1.demo_self()
-except Exception as ex:
-    print ex
-
-####################
-
-import numpy as np
 import codecs
 import nltk
 import re
-import operator
 from nltk.tokenize import wordpunct_tokenize
 from nltk import PorterStemmer
 from math import log
+from collections import Counter
 
 class Corpus():
     
@@ -198,7 +118,6 @@ class Corpus():
 
         return tf_idf_matrix
 
-#####################
 
 class Document():
     
@@ -253,7 +172,6 @@ class Document():
 
         return vector
 
-################
 
 def parse_text(textraw, regex):
     """takes raw string and performs two operations
@@ -277,21 +195,14 @@ def parse_text(textraw, regex):
     return(prs_yr_spch)
 
 
-#################
-
 text = open('./../data/pres_speech/sou_all.txt', 'r').read()
 regex = "_(\d{4}).*?_[a-zA-Z]+.*?_[a-zA-Z]+.*?_([a-zA-Z]+)_\*+(\\n{2}.*?)\\n{3}"
 pres_speech_list = parse_text(text, regex)
 
-
-###################
-
 #Instantiate the corpus class
 corpus = Corpus(pres_speech_list, './../data/stopwords/stopwords.txt', 2)
+tf_idf = corpus.tf_idf()
 
 print corpus
 print corpus.docs[0]
-
-tf_idf = corpus.tf_idf()
-
 print(tf_idf)
