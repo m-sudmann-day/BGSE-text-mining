@@ -118,6 +118,40 @@ class Corpus():
 
         return tf_idf_matrix
 
+    def dict_rank(self, dictionary, n):
+        
+        dtm = self.document_term_matrix()
+        all_tokens = list(self.token_set)
+        
+        # get rid of words in the document term matrix not present in the dictionary
+        vec_positions = [0]*len(dtm[0])
+        
+        for i in range(len(all_tokens)):
+            if all_tokens[i] in dictionary:
+                vec_positions[i] = 1
+            else:
+                vec_positions[i] = 0
+
+        sums = [0]*len(dtm)
+
+        # get the score of each document
+        for j in range(len(dtm)):
+
+            sums[j] = sum([a*b for a,b in zip(dtm[j], vec_positions)])
+
+        # order them and return the n top documents
+        order = sorted(range(len(sums)), key=lambda k: sums[k])
+        ordered_doc_data_n = [0]*len(dtm)
+        counter = 0
+        
+        for num in order:
+            ordered_doc_data_n[counter] = doc_data[num]
+            counter += 1
+
+        n_top = ordered_doc_data_n[0:n]
+       
+        return n_top
+
 
 class Document():
     
