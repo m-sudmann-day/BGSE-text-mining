@@ -54,10 +54,8 @@ class Corpus():
         and  stems it.
         input: length: cutoff length for words
                stopword_file: stopwords file to parse
-        """
-        
-        with codecs.open(stopword_file, 'r', 'utf-8') as f: raw = f.read()
-        
+        """        
+        with codecs.open(stopword_file, 'r', 'utf-8') as f: raw = f.read()        
         self.stopwords = (np.array([PorterStemmer().stem(word) 
                                     for word in list(raw.splitlines()) if len(word) > length]))
              
@@ -81,7 +79,6 @@ class Corpus():
         return result
 
     def tf_idf(self):
-
         dt_matrix = self.document_term_matrix()
         tf_matrix = []
         idf_matrix = []
