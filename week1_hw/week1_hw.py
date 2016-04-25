@@ -50,8 +50,8 @@ class Corpus():
     
     def create_stopwords(self, stopword_file, length):
         """
-        description: parses a file of stowords, removes words of length 'length'
-        and  stems it.
+        Description: parses a file of stopwords, removes words of length
+        'length' and  stems it.
         input: length: cutoff length for words
                stopword_file: stopwords file to parse
         """        
@@ -63,8 +63,7 @@ class Corpus():
         """
         Description: create a set of all all tokens or in other words a
         vocabulary
-        """
-        
+        """        
         # Initialise an empty set
         self.token_set = set()
         for doc in self.docs:
@@ -210,3 +209,12 @@ tf_idf = corpus.tf_idf()
 print corpus
 print corpus.docs[0]
 print(tf_idf)
+
+################################################################################
+# Harvard IV set
+file_handler = './../data/dictionary/inquirerbasic2.csv'
+dictionary = np.loadtxt(open(file_handler, 'rb'), dtype = 'str',
+                        delimiter = ';', skiprows = 1, comments = None)
+
+type(dictionary)
+#len(dictionary)
