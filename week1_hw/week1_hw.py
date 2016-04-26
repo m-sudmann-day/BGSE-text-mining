@@ -10,6 +10,10 @@ import numpy as np
 import codecs
 import nltk
 import re
+import csv
+import json
+import sys
+import operator
 from nltk import PorterStemmer
 from math import log
 from collections import Counter
@@ -69,6 +73,9 @@ class Corpus():
             self.token_set = self.token_set.union(doc.tokens) 
     
     def document_term_matrix(self):
+        """
+        Description: generate the document-term matrix for the corpus
+        """        
         result = []
         for doc in self.docs:
             vector = doc.term_vector(list(self.token_set))
@@ -77,6 +84,12 @@ class Corpus():
         return result
 
     def tf_idf(self):
+        """
+        Description: generate the TF-IDF matrix for this corpus
+        """
+
+        # Generate a copy of the document-term matrix to work with in this
+        # function and initialize other local variables.
         dt_matrix = self.document_term_matrix()
         tf_matrix = []
         idf_matrix = []
@@ -106,41 +119,42 @@ class Corpus():
 
         return tf_idf_matrix
 
-    def dict_rank(self, dictionary, n):        
-        dtm = self.document_term_matrix()
-        ###all_tokens = list(self.token_set)
-        
+    def dict_rank(self, dictionary, use_tf_idf, n):        
+        """
+        Description: rank the documents in this corpus against the provided
+        dictionary.  Return the top n documents.
+        input: dictionary: the dictionary against which to rank the documents
+               use_tf_idf: True if the TF-IDF matrix is to be used; False if
+                           the document-term matrix is to be used.
+               n: the number of top-ranked documents to return
+        """
+        if (use_tf_idf):
+            dtm = self.tf_idf()
+        else:
+            dtm = self.document_term_matrix()
+            
         # Get rid of words in the document term matrix not in the dictionary
-        dict_tokens_set = set([item[0].lower() for item in dictionary])
+        dict_tokens_set = set(item for item in dictionary)
         intersection = dict_tokens_set & self.token_set
         vec_positions = [int(token in intersection) for token in self.token_set] 
-        ###vec_positions = [0] * len(dtm[0])    
-        ###for i in range(len(all_tokens)):
-        ###    if all_tokens[i] in dictionary:
-        ###        vec_positions[i] = 1
-        ###    else:
-        ###        vec_positions[i] = 0
 
         # Get the score of each document
         sums = np.zeros(len(dtm))
-        ###sums = [0] * len(dtm)
         for j in range(len(dtm)):
             sums[j] = sum([a * b for a, b in zip(dtm[j], vec_positions)])
 
-        # Is this horrible?
-        #sums = [sum([a * b for a, b in zip(dtm[j], vec_positions)]) for j in range(len(dtm))]
-
         # Order them and return the n top documents
-        order = sorted(range(len(sums)), key = lambda k: sums[k])
-        ordered_doc_data_n = np.zeros(len(dtm))
-        ###ordered_doc_data_n = [0] * len(dtm)
+        order = sorted(range(len(sums)), key = lambda k: sums[k], reverse=True)
+        ordered_doc_data_n = [None] * len(dtm)
+        ordered_sums = np.zeros(len(dtm))
+
         counter = 0        
         for num in order:
-            ordered_doc_data_n[counter] = doc_data[num]   #<<< doc_data is not defined
+            ordered_doc_data_n[counter] = self.docs[num]
+            ordered_sums[counter] = sums[num]
             counter += 1
-        n_top = ordered_doc_data_n[0:n]
 
-        return n_top
+        return zip(ordered_doc_data_n[0:n], ordered_sums[0:n])
 
 ################################################################################
 class Document():    
@@ -152,13 +166,20 @@ class Document():
         self.pres = speech_pres
         self.text = speech_text.lower()
         self.tokens = np.array(wordpunct_tokenize(self.text))
+    
+    def friendly_string(self):
+        """ 
+        Description: generate a friendly string to describe the document
+        """
+        return "{0} {1} {2}".format(self.year, self.pres, self.text[1:20])
         
     def token_clean(self,length):
         """ 
         Description: strip out non-alpha tokens and tokens of length > 'length'
         input: length: cut off length 
         """
-        self.tokens = np.array([t for t in self.tokens if (t.isalpha() and len(t) > length)])
+        self.tokens = np.array([t for t in self.tokens if
+                                (t.isalpha() and len(t) > length)])
 
     def stopword_remove(self, stopwords):
         """
@@ -173,11 +194,18 @@ class Document():
         """
         self.tokens = np.array([PorterStemmer().stem(t) for t in self.tokens])
 
-    def term_vector(self, doc_token_list):
-        vector = [None] * len(doc_token_list)
+    def term_vector(self, corpus_token_list):
+        """
+        Description: generate a term-vector for this document.  The result
+                     corresponds with a single row of the document-term-matrix
+                     of the corpus
+        input: corpus_token_list: a list of tokens from the corpus, a subset
+                                  of which will be found in this document.
+        """
+        vector = [None] * len(corpus_token_list)
         counter = Counter(self.tokens)
-        for i in range(len(doc_token_list)):
-            count = counter[doc_token_list[i]]
+        for i in range(len(corpus_token_list)):
+            count = counter[corpus_token_list[i]]
             vector[i] = count
 
         return vector
@@ -204,7 +232,7 @@ def parse_text(textraw, regex):
     
     return prs_yr_spch
 
-################################################################################
+#################################################################################
 text = open('./../data/pres_speech/sou_all.txt', 'r').read()
 regex = '_(\d{4}).*?_[a-zA-Z]+.*?_[a-zA-Z]+.*?_([a-zA-Z]+)_\*+(\\n{2}.*?)\\n{3}'
 pres_speech_list = parse_text(text, regex)
@@ -213,19 +241,116 @@ pres_speech_list = parse_text(text, regex)
 corpus = Corpus(pres_speech_list, './../data/stopwords/stopwords.txt', 2)
 tf_idf = corpus.tf_idf()
 
-print corpus
-print corpus.docs[0]
-print(tf_idf)
-
-################################################################################
+#################################################################################
 # Harvard IV set
 file_handler = './../data/dictionary/inquirerbasic2.csv'
+
 dictionary = np.loadtxt(open(file_handler, 'rb'), dtype = 'str',
                         delimiter = ';', skiprows = 1, comments = None)
 
-print(type(dictionary))
-print(len(dictionary))
+our_dictionary = sorted(set(elem[0].rstrip('#01234256789').lower() for elem in dictionary))
 
-print corpus.dict_rank(dictionary, 3)
-print("YO")
-print corpus.dict_rank(dictionary, 3)
+n = 10
+
+# Document term matrix
+
+scored_docs = corpus.dict_rank(our_dictionary, False, n)
+print "The highest ranked documents using DTM are:"
+for i in range(len(scored_docs)):
+    print "{0} {1} {2}".format(scored_docs[i][0].year, scored_docs[i][0].pres, scored_docs[i][1])
+
+# TF-IDF
+scored_docs = corpus.dict_rank(our_dictionary, True, n)
+print "The highest ranked documents using TF-IDF are:"
+for i in range(len(scored_docs)):
+    print "{0} {1} {2}".format(scored_docs[i][0].year, scored_docs[i][0].pres, scored_docs[i][1])
+
+scored_docs = corpus.dict_rank(our_dictionary, True, len(corpus.docs))
+presidents = set([scored_doc[0].pres for scored_doc in scored_docs])
+president_dictionary = {}
+for president in presidents:
+    scores = [scored_doc[1] for scored_doc in scored_docs if scored_doc[0].pres == president]
+    president_dictionary[president] = sum(scores)/len(scores)
+
+for pres_score in sorted(president_dictionary.items(), key=operator.itemgetter(1)):
+    print "{0} {1}".format(pres_score[0].rjust(15), pres_score[1])
+
+#################################################################################
+
+def load_sentiment_dictionary(path):
+    """
+    description: load a sentiment dictionary
+    input: path: the path to the dictionary
+    """
+
+    d = {}
+    with open(path, 'rb') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='\t')
+        for row in csv_reader:
+            d[row[0]] = int(row[1])        
+
+    return(d)
+
+sentiment_dictionary = load_sentiment_dictionary('../data/AFINN/AFINN-111.txt')
+
+# Inspect sentiment dictionary
+print "Sentiment dictionary length: {0}".format(len(sentiment_dictionary))
+
+def load_words_from_file(path):
+
+    # Read the file content.
+    file_handle = open(path)
+    file_content = file_handle.read()
+    file_handle.close()
+
+    # Extract the content as JSON and get a copy of the speech text.
+    speech = json.loads(file_content)[2]
+    stripped_text = speech
+
+    # For each nonalphanumeric character, replace with a space.  This is
+    # safer than replacing with an empty string because some punctuation
+    # separates words without a space, i.e. '--'.
+    for char in ',.:;[]"?$:-':
+        stripped_text = stripped_text.replace(char, ' ')
+
+    # Split the string into words.
+    word_list = stripped_text.split(' ')
+
+    # Because of the way the punctuation was replaced with spaces, there are
+    # instances of multiple adjacent spaces.  Therefore, empty strings appear
+    # in the word list.  Remove these.
+    word_list = [word.lower() for word in word_list if word != '']
+
+    return(word_list)
+
+def calculate_sentiment_for_speech(sentiment_dictionary, words):
+
+    word_count = 0
+    sentiment = 0
+
+    for word in words:
+        if sentiment_dictionary.has_key(word):
+            sentiment += sentiment_dictionary[word]
+            word_count += 1
+
+    return float(sentiment)/float(word_count), sentiment
+
+def print_results(sentiment_dictionary, path, friendly_string):
+
+    words = load_words_from_file(path)
+    sentiment, cumul_sent_score = calculate_sentiment_for_speech(sentiment_dictionary, words)
+    display_str = "{0} : sentiment = {1} ; cumulative sentiment score = {2}"
+    print display_str.format(friendly_string, sentiment, cumul_sent_score)
+
+print_results(sentiment_dictionary,
+              "../data/pres_speech/1977_Ford_Matthew.txt",
+              "1977 Ford")
+print_results(sentiment_dictionary,
+              "../data/pres_speech/1967_Johnson_Roger.txt",
+              "1967 Johnson")
+print_results(sentiment_dictionary,
+              "../data/pres_speech/1897_McKinley_miquel.txt",
+              "1897 McKinley")
+
+#As is evident from the data above, McKinley in 1897 had the lowest sentiment in his speech,
+#while Ford in 1977 had the highest sentiment in his.
