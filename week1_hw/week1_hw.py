@@ -1,16 +1,15 @@
-import numpy as np
 
-# In my environment, a harmless exception is thrown from the following import.
-# Just ignore it.
+# In Matthew's environment, a harmless exception is thrown from the following import.
+# Actually, it seems to be the first import, whatever it is.  Anyway, just ignore it.
 try:
     from nltk.tokenize import wordpunct_tokenize
 except Exception:
     pass
 
+import numpy as np
 import codecs
 import nltk
 import re
-from nltk.tokenize import wordpunct_tokenize
 from nltk import PorterStemmer
 from math import log
 from collections import Counter
@@ -91,7 +90,7 @@ class Corpus():
 
         # Build a document frequency matrix for each term.
         # Initialize with zeros.
-        df_vector = [0] * len(self.token_set)
+        df_vector = np.zeros(len(self.token_set))
         for dt_doc_vector in dt_matrix:
             # Increment the counters based on an indicator function which
             # is 1 if there is at least one instance of the term in the doc.
@@ -109,30 +108,38 @@ class Corpus():
 
     def dict_rank(self, dictionary, n):        
         dtm = self.document_term_matrix()
-        all_tokens = list(self.token_set)
+        ###all_tokens = list(self.token_set)
         
         # Get rid of words in the document term matrix not in the dictionary
-        vec_positions = [0] * len(dtm[0])        
-        for i in range(len(all_tokens)):
-            if all_tokens[i] in dictionary:
-                vec_positions[i] = 1
-            else:
-                vec_positions[i] = 0
-        sums = [0] * len(dtm)
+        dict_tokens_set = set([item[0].lower() for item in dictionary])
+        intersection = dict_tokens_set & self.token_set
+        vec_positions = [int(token in intersection) for token in self.token_set] 
+        ###vec_positions = [0] * len(dtm[0])    
+        ###for i in range(len(all_tokens)):
+        ###    if all_tokens[i] in dictionary:
+        ###        vec_positions[i] = 1
+        ###    else:
+        ###        vec_positions[i] = 0
 
         # Get the score of each document
+        sums = np.zeros(len(dtm))
+        ###sums = [0] * len(dtm)
         for j in range(len(dtm)):
             sums[j] = sum([a * b for a, b in zip(dtm[j], vec_positions)])
 
+        # Is this horrible?
+        #sums = [sum([a * b for a, b in zip(dtm[j], vec_positions)]) for j in range(len(dtm))]
+
         # Order them and return the n top documents
         order = sorted(range(len(sums)), key = lambda k: sums[k])
-        ordered_doc_data_n = [0] * len(dtm)
+        ordered_doc_data_n = np.zeros(len(dtm))
+        ###ordered_doc_data_n = [0] * len(dtm)
         counter = 0        
         for num in order:
-            ordered_doc_data_n[counter] = doc_data[num]
+            ordered_doc_data_n[counter] = doc_data[num]   #<<< doc_data is not defined
             counter += 1
         n_top = ordered_doc_data_n[0:n]
-       
+
         return n_top
 
 ################################################################################
@@ -216,5 +223,9 @@ file_handler = './../data/dictionary/inquirerbasic2.csv'
 dictionary = np.loadtxt(open(file_handler, 'rb'), dtype = 'str',
                         delimiter = ';', skiprows = 1, comments = None)
 
-type(dictionary)
-#len(dictionary)
+print(type(dictionary))
+print(len(dictionary))
+
+print corpus.dict_rank(dictionary, 3)
+print("YO")
+print corpus.dict_rank(dictionary, 3)
