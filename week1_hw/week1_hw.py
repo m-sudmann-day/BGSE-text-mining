@@ -273,7 +273,7 @@ for president in presidents:
     president_dictionary[president] = sum(scores)/len(scores)
 
 for pres_score in sorted(president_dictionary.items(), key=operator.itemgetter(1)):
-    print "{0} {1}".format(pres_score[0].rjust(15), pres_score[1])
+    print "{0} {1}".format(pres_score[0].rjust(15), '*' * int(pres_score[1]/32))
 
 #################################################################################
 
