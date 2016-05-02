@@ -92,13 +92,13 @@ Finally, the complete log-likelihood gives:
 \newline \textbf{Part (c)}\\
 \newline Denote the function $Q$ as:
 \begin{eqnarray}
-Q(\pmb{\rho}, \mathbf{B}) = \sum_{i=1}^N \sum_{k=1}^{K} \hat{z}_{i,k} \left[ \log \rho_k + \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)} \log \beta_{z_i v_1}^{(1)} + \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)} \log \beta_{z_i v_2}^{(2)} \right],  \nonumber
+Q(\pmb{\rho}, \mathbf{B}) = \sum_{i=1}^N \sum_{k=1}^{K} \hat{z}_{i,k} \left[ \log \rho_k + \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)} \log \beta_{z_i v_1}^{(1)} + \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)} \log \beta_{z_i v_2}^{(2)} \right], \label{Qfunc}
 \end{eqnarray}
 where using the Bayes' rule:
 \begin{eqnarray}
 \hat{z}_{i,k} \equiv \mathbb{E}\left[\mathbb{1}_{ \left\{ z_i = k \right\} } | \pmb{\rho}, \mathbf{B}, \mathbf{x}_i \right] &=& \mathbb{P}\left( z_i = k  | \pmb{\rho}, \mathbf{B}, \mathbf{x}_i \right) \nonumber \\
 &\propto& \mathbb{P}\left( \mathbf{x}_i | \pmb{\rho}, \mathbf{B}, z_i = k \right) \mathbb{P}\left( z_i = k | \pmb{\rho}, \mathbf{B} \right) \nonumber \\
-&=& \rho_k \prod_{v_1=1}^{V_1} \left( \beta_{z_i v_1}^{(1)} \right)^{x_{i v_1}^{(1)}} \prod_{v_2=1}^{V_2} \left( \beta_{z_i v_2}^{(2)} \right)^{x_{i v_2}^{(2)}}. \nonumber
+&=& \rho_k \prod_{v_1=1}^{V_1} \left( \beta_{z_i v_1}^{(1)} \right)^{x_{i v_1}^{(1)}} \prod_{v_2=1}^{V_2} \left( \beta_{z_i v_2}^{(2)} \right)^{x_{i v_2}^{(2)}}.  \label{zhat}
 \end{eqnarray}
 \textbf{Part (d)}\\
 \newline The Lagrangian is defined as:
@@ -116,21 +116,89 @@ We take derivatives with respect to the parameters:
 \end{eqnarray}
 Combining \eqref{eq1} and \eqref{eq2} we see:
 \begin{eqnarray}
-\nu = \frac{1}{\rho_k} \sum_{i=1}^{N} \hat{z}_{i,k} \Leftrightarrow \nu \underbrace{\sum_{k=1}^{K} \rho_k}_{=1} = \sum_{k=1}^{K} \sum_{i=1}^{N} \hat{z}_{i,k} \underbrace{\Leftrightarrow}_{\text{Plug $\nu$ into \eqref{eq1}}} \rho_k^{*} =  \frac{\sum_{i=1}^N \hat{z}_{i,k}}{\sum_{k=1}^{K} \sum_{i=1}^{N} \hat{z}_{i,k}}, \nonumber
+\nu = \frac{1}{\rho_k} \sum_{i=1}^{N} \hat{z}_{i,k} \Leftrightarrow \nu \underbrace{\sum_{k=1}^{K} \rho_k}_{=1} = \sum_{k=1}^{K} \sum_{i=1}^{N} \hat{z}_{i,k} \underbrace{\Leftrightarrow}_{\text{Plug $\nu$ into \eqref{eq1}}} \rho_k^{*} =  \frac{\sum_{i=1}^N \hat{z}_{i,k}}{\sum_{k=1}^{K} \sum_{i=1}^{N} \hat{z}_{i,k}}, \label{rhostar}
 \end{eqnarray}
 Analogously, combining \eqref{eq3} and \eqref{eq4} we get:
 \begin{eqnarray}
-\beta_{z_i v_1}^{(1)} \lambda_k^{(1)} = \sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_1}^{(1)} \Leftrightarrow \underbrace{\sum_{v_1=1}^{V_1} \beta_{z_i v_1}^{(1)}}_{=1} \lambda_k^{(1)} = \sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)} \underbrace{\Leftrightarrow}_{\text{Plug $\lambda_k^{(1)}$ into \eqref{eq3}}} \left(\beta_{z_i v_1}^{(1)}\right)^{*} = \frac{\sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_1}^{(1)}}{\sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)}}.  \nonumber
+\beta_{z_i v_1}^{(1)} \lambda_k^{(1)} = \sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_1}^{(1)} \Leftrightarrow \underbrace{\sum_{v_1=1}^{V_1} \beta_{z_i v_1}^{(1)}}_{=1} \lambda_k^{(1)} = \sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)} \underbrace{\Leftrightarrow}_{\text{Plug $\lambda_k^{(1)}$ into \eqref{eq3}}} \left(\beta_{z_i v_1}^{(1)}\right)^{*} = \frac{\sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_1}^{(1)}}{\sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_1=1}^{V_1} x_{i v_1}^{(1)}}.  \label{beta1star}
 \end{eqnarray}
 The exact same procedure can be applied with \eqref{eq5} and \eqref{eq6} (simply changing subscripts) to obtain:
 \begin{eqnarray}
-\beta_{z_i v_1}^{(2)} \lambda_k^{(2)} = \sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_2}^{(2)} \Leftrightarrow \underbrace{\sum_{v_2=1}^{V_2} \beta_{z_i v_2}^{(2)}}_{=1} \lambda_k^{(2)} = \sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)} \underbrace{\Leftrightarrow}_{\text{Plug $\lambda_k^{(2)}$ into \eqref{eq5}}} \left(\beta_{z_i v_2}^{(2)} \right)^{*} = \frac{\sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_2}^{(2)}}{\sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)}}.  \nonumber
+\beta_{z_i v_1}^{(2)} \lambda_k^{(2)} = \sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_2}^{(2)} \Leftrightarrow \underbrace{\sum_{v_2=1}^{V_2} \beta_{z_i v_2}^{(2)}}_{=1} \lambda_k^{(2)} = \sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)} \underbrace{\Leftrightarrow}_{\text{Plug $\lambda_k^{(2)}$ into \eqref{eq5}}} \left(\beta_{z_i v_2}^{(2)} \right)^{*} = \frac{\sum_{i=1}^{N} \hat{z}_{i,k} x_{i v_2}^{(2)}}{\sum_{i=1}^{N} \hat{z}_{i,k} \sum_{v_2=1}^{V_2} x_{i v_2}^{(2)}}.  \label{beta2star}
 \end{eqnarray}
 The parameters found in this step, i.e. the set of $\rho_k^{*}$'s, $\left(\beta_{z_i v_1}^{(1)} \right)^{*}$'s and $\left(\beta_{z_i v_2}^{(2)} \right)^{*}$'s will be the ones used in the next iteration.\\
 \newline \textbf{Part (e)}\\
 \newline Pseudo-code for the EM algorithm in this context:
 \begin{verbatim}
-void
+################################################################################
+em = function(X, K, eps = 1e-6, maxiter = 1e5) {
+# X: input data, with word counts for the N observations
+# K: number of clusters of the latent variable
+# eps: value that defines the distance at which the algorithm stabilizes
+# maxiter: maximum number of iterations allowed before convergence
+################################################################################  
+  # Number of observations
+  N = length(D)
+
+  # Initialize parameters
+  for (i in 1:N) {
+    beta1[i] = [1 / v1, ..., 1 / V1]  # length V1
+    beta2[i] = [1 / v2, ..., 1 / V2]  # length V2
+  }
+  B1 = [beta1[1], ..., beta1[N]]  # matrix with betas1
+  B2 = [beta2[1], ..., beta2[N]]  # matrix with betas2
+  rho = [1 / K, ..., 1 / K]  # length K
+
+  # Perform iteration until convergence
+  iter = 1
+  repeat {
+    # Expectation step
+    zhat = compute[Equation (2); X, rho, B1, B2]
+    Q = compute[Equation (1); X, rho, B1, B2]
+
+    # Maximization step
+    for (k in 1:K) {
+      rho[k] = sum(zhat[1:N, k]) / sum(zhat[1:N, 1:K])  # Equation (9)
+    }
+
+    for (i in 1:N) {
+      # Equation (10)
+      for (v1 in 1:V1) {
+        beta1[i, v1] = sum(zhat[1:N, k] * X[1:N, v1]) /
+                       sum(zhat[1:N, k] * X[1:N, 1:V1])
+      }
+
+      # Equation (11)
+      for (v2 in 1:V2) {
+        beta1[i, v2] = sum(zhat[1:N, k] * X[1:N, v2]) /
+                       sum(zhat[1:N, k] * X[1:N, 1:V2])
+      }
+    }
+
+    # Update all parameters
+    B1 = [beta1[1], ..., beta1[N]]  # matrix with betas1
+    B2 = [beta2[1], ..., beta2[N]]  # matrix with betas2
+    rho = [1 / K, ..., 1 / K]  # length K
+
+    # If the parameters have stabilized, we stop
+    if (norm(B1) < eps & norm(B2) < eps & norm(rho) < eps) {
+      converged = TRUE
+      break
+    }
+
+    # If the algorithm has not stabilized after lots of iterations, stop
+    if (iter > maxiter) {
+      converged = FALSE
+      break
+    }
+
+    # Update iterator
+    iter = iter + 1
+  }
+
+  # End
+  return(zhat, B1, B2, rho, converged)
+}
 \end{verbatim}
 
 \end{document}
