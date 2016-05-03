@@ -7,7 +7,7 @@ em = function(X, K, eps = 1e-6, maxiter = 1e5) {
 # maxiter: maximum number of iterations allowed before convergence
 ################################################################################  
   # Number of observations
-  N = length(D)
+  N = length(X)
 
   # Initialize parameters
   for (i in 1:N) {
