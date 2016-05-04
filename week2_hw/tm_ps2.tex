@@ -41,11 +41,24 @@
 \header{\textbf{Text Mining $-$ Assignment \#2}}{Roger Cuscó, Matthew-Sudmann-Day and Miquel Torrens}
 %%%%%%%%%%%%%%%%%%%%
 \textbf{\underline{Exercise 1}}\\
-\newline Answer.\\
+\newline We constructed a TF-IDF matrix for the full corpus of the State of the Union speeches dataset. We extracted subsets of those documents based on characteristics that we believe could affect the content. Then we performed a cosine similarity comparison between documents within each subset and between the two subsets. This will tell us whether or not the characteristics we have chosen for categorizing the documents are reflected in term frequencies.\\
+\newline We can perform the above analysis directly as described or we can reduce noise in the data by performing a singular value decomposition (SVD), replacing the smaller singular values with zeros, and then recomposing. Selecting a ``reasonable" number of singular values to retain is not necessarily easy so we plotted results against a variety of singular values, in increments of 10.\\
+\newline On the plots below, the $x$-axis shows the number of singular values retained. Zero was preserved as a special value meaning that no SVD was performed so the analysis was explicitly done against the original TF-IDF matrix in that one case. One can easily observe, unsurprisingly, that when we retrain \textbf{all} singular values, the result is the same as if the SVD was not performed at all. This explains why the left edge and the right edge of the plots look identical.\\
+\newline First, observe a breakdown by party. As you can see, the number of retained singular values changes the conclusions but only at the extreme. As long as we eliminate a few singular values, we eliminate enough noise. And we conclude that SoU speeches of Republicans are more similar to each other than those of Democrats. But they are both more similar to each other than they are to speeches from presidents of the other party.
+\begin{center}
+\includegraphics[scale=0.45]{plot1.png}
+\end{center}
+For those who have been alive in the last 16 years, the follow is a very intuitive result is below: speeches of Bush (W) have a character that is easily identified as different from those of Obama. However, retaining too many or too few singular values will tell us that Obama’s speeches more resemble each other than Bush’s do. Retaining a medium or “reasonable” number will tell us the opposite.
+\begin{center}
+\includegraphics[scale=0.45]{plot2.png}
+\end{center}
+Finally, the language and politics evolves enough over the centuries to easily separate 19\textsuperscript{th} century and 20\textsuperscript{th} century speeches, regardless of the party of the president.
+\begin{center}
+\includegraphics[scale=0.45]{plot3.png}
+\end{center}
 %%%%%%%%%%%%%%%%%%%%
 \pagebreak
-\\
-\newline \textbf{\underline{Exercise 2}}\\
+\textbf{\underline{Exercise 2}}\\
 \newline \textbf{Part (a)}\\
 %\newline The parameters of the model are $K$, $\rho_k$ for $k \in \{ 1, \dots, K \}$, $\beta_{z_i}^{1} \in \Delta^{V_1 - 1}$ and $\beta_{z_i}^{2} \in \Delta^{V_2 - 1}$. The latent variables are all $z_i$, for all $i$'s. The observed data are $x_i^{(1)} = (x_{i1}^{(1)}, \dots, x_{iv}^{(1)}, \dots, x_{iV_1}^{(1)}) \in \mathbb{R}^{V_1}$  and $x_i^{(2)} = (x_{i1}^{(2)}, \dots, x_{iv}^{(2)}, \dots, x_{iV_2}^{(2)}) \in \mathbb{R}^{V_2}$.
 \newline The components of the model are the following:
