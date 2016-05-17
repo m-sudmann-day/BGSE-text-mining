@@ -21,6 +21,7 @@ class Property:
         self.weeklyPrice = None
         self.latitude = None
         self.longitude = None
+        self.errorOccured = False
 
         try:
 
@@ -34,6 +35,8 @@ class Property:
         
         except Exception as ex:
             
+            self.errorOccured = True
+
             LogError(self.db, "Property", propertyId, ex)
 
     def isAlreadyScraped(self):

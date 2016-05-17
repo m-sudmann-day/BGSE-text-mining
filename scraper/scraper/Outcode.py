@@ -15,17 +15,22 @@ class Outcode:
         self.db = db
         self.outcodeId = outcodeId
         self.properties = []
+        self.errorOccured = False
+
+        print "====== Scraping outcode", self.outcodeId
 
         if self.isFinished():
+            print "Previously successfully scraped"
             return
-
+        
         try:
 
             self.start()
 
             self.scrape()
 
-            self.finish()
+            if not self.errorOccured:
+                self.finish()
         
         except Exception as ex:
             
@@ -61,7 +66,6 @@ class Outcode:
 
         while (True):
         
-            print "====== Scraping outcode", self.outcodeId
             print "=== Search results page", (index / self.RESULTS_PER_PAGE) + 1
 
             url = self.SEARCH_RESULTS_URL.format(self.outcodeId, index)
@@ -84,12 +88,17 @@ class Outcode:
             accumulatedPropertyIds.extend(propertyIds)
 
             if len(propertyIds) == 0:
+                print "No new properties on this page"
                 break
 
             for propertyId in propertyIds:
 
                 property = Property(self.db, propertyId, self.outcodeId)
-                self.properties.append(property)
+
+                if property.errorOccured:
+                    self.errorOccured = True
+                else:
+                    self.properties.append(property)
 
                 time.sleep(2)
 
