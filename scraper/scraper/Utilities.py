@@ -1,8 +1,14 @@
+### Utilities.py
+### Defines utilty functions for general use.
+
 import re
 
 from Database import *
 
 def MyRegex(pattern, text):
+
+    # A function for extracting regular expression matches using some parameters
+    # that are appropriate for all uses by this application.
 
     matches = re.findall(pattern, text, re.MULTILINE|re.DOTALL)
     
@@ -13,6 +19,8 @@ def MyRegex(pattern, text):
 
 def LogError(db, objType, id, ex):
    
+    # Log an error to the database.
+
     print "Error", objType, id
     print ex
 

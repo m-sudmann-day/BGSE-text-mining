@@ -1,8 +1,13 @@
+### Database.py
+### Defines the class Database.
+
 import sys
 import MySQLdb
 
 class Database:
 
+    # Provide a constructor that allows the caller to fully define the
+    # MySQL connection.
     def __init__(self, host, user, passwd, db):
    
         self.host = host
@@ -10,6 +15,8 @@ class Database:
         self.passwd = passwd
         self.db = db
 
+    # Provide a constructor that will prompt the user of a console application
+    # for the attributes of the MySQL connection with defaults.
     def __init__(self):
         sys.stdout.write("MySQL host (default='127.0.0.1'): ")
         self.host = sys.stdin.readline().strip()
@@ -33,10 +40,14 @@ class Database:
 
     def getConnection(self):
 
+        # Create and return a MySQLdb connection.
+
         conn = MySQLdb.connect(host=self.host, user=self.user, passwd=self.passwd, db=self.db)
         return conn
 
     def runSqlQuery(self, sql):
+
+        # Execute a SQL query and return a scalar result.
 
         sql = sql.encode("utf8")
         conn = self.getConnection()
@@ -52,12 +63,16 @@ class Database:
 
     def runSqlCommand(self, sql):
 
+        # Execute a SQL query with no return value.
+
         sql = sql.encode("utf8")
         conn = self.getConnection()
         query = conn.query(sql)
         conn.commit()
         conn.close()
 
+    # A static helper method for cleaning a string before it is inserted into
+    # a dynamic SQL string.
     @staticmethod
     def cleanStringForDatabase(s):
         if (s == None):
@@ -65,6 +80,8 @@ class Database:
         else:
             return s.replace("'", "").replace("\"", "")
 
+    # A static helper method for cleaning a supposedly numeric value before
+    # it is inserted into a dynamic SQL string.
     @staticmethod
     def cleanNumberForDatabase(n):
         if (n == None):
