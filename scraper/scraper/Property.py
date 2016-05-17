@@ -22,13 +22,19 @@ class Property:
         self.latitude = None
         self.longitude = None
 
-        if self.isAlreadyScraped():
-            print "Already scraped property", self.propertyId
-            return
+        try:
 
-        self.scrape()
+            if self.isAlreadyScraped():
+                print "Already scraped property", self.propertyId
+                return
 
-        self.save()
+            self.scrape()
+
+            self.save()
+        
+        except Exception as ex:
+            
+            LogError(self.db, "Property", propertyId, ex)
 
     def isAlreadyScraped(self):
        
@@ -86,7 +92,7 @@ class Property:
         while descriptionNode != None:
             tagName = getattr(descriptionNode, "name", None)
             if (tagName == None):
-                description += descriptionNode
+                description += descriptionNode + " "
             descriptionNode = descriptionNode.nextSibling
 
         self.description = Database.cleanStringForDatabase(description.strip())

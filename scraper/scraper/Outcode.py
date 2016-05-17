@@ -19,11 +19,17 @@ class Outcode:
         if self.isFinished():
             return
 
-        self.start()
+        try:
 
-        self.scrape()
+            self.start()
 
-        self.finish()
+            self.scrape()
+
+            self.finish()
+        
+        except Exception as ex:
+            
+            LogError(self.db, "Outcode", outcodeId, ex)
 
     def start(self):
 

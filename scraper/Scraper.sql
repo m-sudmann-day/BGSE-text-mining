@@ -1,4 +1,5 @@
-CREATE DATABASE `scraper` /*!40100 DEFAULT CHARACTER SET latin1 */;
+CREATE DATABASE `scraper2` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `scraper2`;
 
 CREATE TABLE `outcode` (
   `id` int(11) NOT NULL,
@@ -19,4 +20,10 @@ CREATE TABLE `property` (
   PRIMARY KEY (`id`),
   KEY `outcode_id` (`outcode_id`),
   CONSTRAINT `property_ibfk_1` FOREIGN KEY (`outcode_id`) REFERENCES `outcode` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `error` (
+  `obj_type` varchar(250) DEFAULT NULL,
+  `id` varchar(20) DEFAULT NULL,
+  `text` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
