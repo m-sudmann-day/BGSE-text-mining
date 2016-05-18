@@ -1,5 +1,5 @@
-CREATE DATABASE `scraper2` /*!40100 DEFAULT CHARACTER SET latin1 */;
-USE `scraper2`;
+CREATE DATABASE `scraper` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `scraper`;
 
 -- Create a table storing the outcodes scraped so far and a binary 
 -- indicating whether the scraping was succesfully completed.
