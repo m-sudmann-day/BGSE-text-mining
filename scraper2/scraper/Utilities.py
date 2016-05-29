@@ -59,3 +59,7 @@ def MyDateParser(s):
 def DaysAgo(n):
 
     return (datetime.today() - timedelta(days=n)).date()
+
+def ConvertToAscii(s):
+
+    return ''.join(chr(ord(c)) for c in s if ord(c) < 128)

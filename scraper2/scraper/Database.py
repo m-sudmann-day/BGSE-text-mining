@@ -4,6 +4,7 @@
 import sys
 import MySQLdb
 from datetime import datetime
+import time
 
 class Database:
 
@@ -48,8 +49,7 @@ class Database:
 
         # Create and return a MySQLdb connection.
 
-        conn = MySQLdb.connect(host=self.host, user=self.user, passwd=self.passwd, db=self.db)
-        return conn
+        return MySQLdb.connect(host=self.host, user=self.user, passwd=self.passwd, db=self.db)
 
     def runSqlQueryScalar(self, sql):
 

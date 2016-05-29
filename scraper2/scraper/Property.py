@@ -82,13 +82,18 @@ class Property:
         self.availabilityLag = record["availability_lag"]
         self.initialTimestamp = record["initial_timestamp"]
         self.latestTimestamp = record["latest_timestamp"]
+        self.sentPol = record["sent_pol"]
+        self.sentSubj = record["sent_subj"]
+        self.sentPos = record["sent_pos"]
+        self.sentNeg = record["sent_neg"]
+        self.stemmedTokens = record["stemmed_tokens"]
         self.errorOccured = False
 
     def checkLetAgreed(self):
 
         print "Property", self.propertyId
 
-        if not self.letAgreed:
+        try:
 
             # Construct a URL for property.
             self.url = self.PROPERTY_URL.format(self.propertyId)
@@ -113,6 +118,16 @@ class Property:
                 sql = sql.format(Database.currentTimestampForDatabase(), self.propertyId)
 
                 self.db.runSqlCommand(sql)
+
+        except Exception as ex:
+
+            # If an error occurs, flag the object and log it.
+            
+            self.errorOccured = True
+
+            print "Error", ex
+
+            LogError(self.db, -1, self.propertyId, ex)
 
     def isAlreadyScraped(self):
        
@@ -250,5 +265,31 @@ class Property:
 
         sql = "update property set sent_pol = {0}, sent_subj = {1}, sent_pos = {2}, sent_neg = {3} where id = {4};"
         sql = sql.format(score['Polarity'], score['Subjectivity'], score['Positive'], score['Negative'], self.propertyId)
+
+        self.db.runSqlCommand(sql)
+
+    def cleanupText(self, tokenizer, stopWords, stemmer):
+
+        text = self.description
+        text = text.lower()
+
+        tokens = tokenizer.tokenize(text)
+        tokens = [ConvertToAscii(s) for s in tokens]
+        tokens = [s for s in tokens if not s in stopWords]
+        tokens = [s for s in tokens if not s.isdigit()]
+
+        stemmedTokens = [stemmer.stem(s).strip() for s in tokens]
+        stemmedTokens = [s for s in stemmedTokens if len(s) > 0]
+
+        if len(stemmedTokens) < 12:
+            stemmedTokens = None
+            sql = "update property set stemmed_tokens = NULL where id = {0};"
+            sql = sql.format(self.propertyId)
+        else:
+            stemmedTokens = ' '.join(stemmedTokens).strip()
+            sql = "update property set stemmed_tokens = '{0}' where id = {1};"
+            sql = sql.format(stemmedTokens, self.propertyId)
+
+        self.stemmedTokens = stemmedTokens
 
         self.db.runSqlCommand(sql)

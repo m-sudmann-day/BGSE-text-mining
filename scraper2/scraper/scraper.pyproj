@@ -6,7 +6,7 @@
     <ProjectGuid>e0c31d17-4a84-4cc9-a8c7-d637f1c5b6d1</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>Scraper.py</StartupFile>
+    <StartupFile>Corpus.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,6 +23,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Corpus.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Database.py">
       <SubType>Code</SubType>
     </Compile>

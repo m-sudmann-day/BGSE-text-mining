@@ -161,8 +161,8 @@ class Outcode:
             # For each property ID, create a property.
             for propertyId in propertyIds:
 
-                # Sleep for an extra two seconds per property.
-                time.sleep(1)
+                # Sleep for an extra amount per property.
+                time.sleep(1.5)
 
                 property = Property(self.db, self.outcodeId, propertyId, isPremium)
 
@@ -175,7 +175,7 @@ class Outcode:
                     self.properties.append(property)
 
             # Sleep for an extra two seconds after scraping a page of search results.
-            time.sleep(1)
+            time.sleep(2)
 
             # There's nothing left to search for in this outcode.
             if finishedWithSearchResults:

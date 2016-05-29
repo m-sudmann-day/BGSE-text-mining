@@ -16,8 +16,7 @@ import pysentiment as ps
 from nltk.tokenize import RegexpTokenizer
 from stop_words import get_stop_words
 from nltk.stem.porter import PorterStemmer
-from gensim import corpora, models
-import gensim
+import lda
 
 DEFAULT_OUTCODE_IDS = "793"
 #RURAL NORFOLK: = "1822"
@@ -65,7 +64,7 @@ def GetNewListingsForAllOutcodes(daysAgo, includeToday=True, ignoreIfCompleted=T
         print "Outcode counter:", counter
         Outcode(db, outcodeId, oldestAdDate, includeToday, ignoreIfCompleted)
 
-def RunOneProperty(outcodeId, propertyId, isPremium):
+def ScapeOneProperty(outcodeId, propertyId, isPremium):
 
     db = Database()
 
@@ -92,11 +91,33 @@ def RunSentimentAnalysis():
 
     sql = u"select id from property;"
 
-    pendingSentiment = db.runSqlQueryColumn(sql)
+    propertyIds = db.runSqlQueryColumn(sql)
 
-    for propertyId in pendingSentiment:
+    for propertyId in propertyIds:
         property = Property(db, propertyId)
         property.analyseSentiment(hiv4)
+
+def CleanupText():
+
+    db = Database()
+
+    sql = u"select id from property;"
+
+    propertyIds = db.runSqlQueryColumn(sql)
+
+    # Portions of code copied from:
+    #   Latent Dirichlet Allocation (LDA) with Python
+    #   by Jordan Barber
+
+    tokenizer = RegexpTokenizer(r'\w+')
+
+    stopWords = get_stop_words('en')
+
+    stemmer = PorterStemmer()
+
+    for propertyId in propertyIds:
+        property = Property(db, propertyId)
+        property.cleanupText(tokenizer, stopWords, stemmer)
 
 #GetNewListingsForAllOutcodes(3)
 
@@ -105,26 +126,29 @@ def RunSentimentAnalysis():
 # information so they were ignored thereafter.  The one that was due
 # to a network error ran fine (I had verified manually that it was
 # indeed NOT premium.)
-#RunOneProperty(2462,59617616,False)
-#RunOneProperty(142,59609798,False)
-#RunOneProperty(1676,24773018,False)
-#RunOneProperty(518,42061545,False)
-#RunOneProperty(1820,5587838,False)
-#RunOneProperty(745,59642756,False)
-#RunOneProperty(2463,42030936,False)
-#RunOneProperty(485,42068847,False)
-#RunOneProperty(508,42058230,False)
-#RunOneProperty(1593,47573894,False)
-#RunOneProperty(2505,5453285,False)
-#RunOneProperty(458,42039567,False)
-#RunOneProperty(2459,59640761,False)
-#RunOneProperty(2459,59623847,False)
-#RunOneProperty(1055,42068010,False)
-#RunOneProperty(499,59662136,False)
+#ScapeOneProperty(2462,59617616,False)
+#ScapeOneProperty(142,59609798,False)
+#ScapeOneProperty(1676,24773018,False)
+#ScapeOneProperty(518,42061545,False)
+#ScapeOneProperty(1820,5587838,False)
+#ScapeOneProperty(745,59642756,False)
+#ScapeOneProperty(2463,42030936,False)
+#ScapeOneProperty(485,42068847,False)
+#ScapeOneProperty(508,42058230,False)
+#ScapeOneProperty(1593,47573894,False)
+#ScapeOneProperty(2505,5453285,False)
+#ScapeOneProperty(458,42039567,False)
+#ScapeOneProperty(2459,59640761,False)
+#ScapeOneProperty(2459,59623847,False)
+#ScapeOneProperty(1055,42068010,False)
+#ScapeOneProperty(499,59662136,False)
 
 #GetNewListingsForAllOutcodes(2, includeToday=False, ignoreIfCompleted=False)
 
+#time.sleep(3*60*60)
+#print datetime.today()
 #UpdateLetAgreeds(21)
 
 #RunSentimentAnalysis()
 
+#CleanupText()
