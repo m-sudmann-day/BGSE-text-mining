@@ -71,6 +71,7 @@ class Property:
         self.title = record["title"]
         self.description = record["description"]
         self.letAgreed = record["let_agreed"]
+        self.removed = record["removed"]
         self.monthlyPrice = record["monthly_price"]
         self.weeklyPrice = record["weekly_price"]
         self.latitude = record["latitude"]
@@ -104,18 +105,26 @@ class Property:
             # Let BeautifulSoup build an object model from the content.
             soup = BeautifulSoup(content, "lxml")
 
-            propertyHeaderQualifierNodes = soup.find_all("small", {"class":"property-header-qualifier"})
-            for node in propertyHeaderQualifierNodes:
-                if node != None:
-                    if "Let Agreed" in node.text:
-                        self.letAgreed = True
+            invalidPropertyNodes = soup.find_all("strong", {"class":"block"})
+            for node in invalidPropertyNodes:
+                if "We are sorry but" in node.text:
+                    self.removed = True
+                    break
 
-            if self.letAgreed:
+            if not self.removed:
+                propertyHeaderQualifierNodes = soup.find_all("small", {"class":"property-header-qualifier"})
+                for node in propertyHeaderQualifierNodes:
+                    if node != None:
+                        if "Let Agreed" in node.text:
+                            self.letAgreed = True
+                            break
+
+            if self.removed or self.letAgreed:
 
                 self.latestTimestamp = datetime.today().date()
 
-                sql = "update property set let_agreed = 1, latest_timestamp = '{0}' where id = {1};"
-                sql = sql.format(Database.currentTimestampForDatabase(), self.propertyId)
+                sql = "update property set removed = {0}, let_agreed = {1}, latest_timestamp = '{2}' where id = {3};"
+                sql = sql.format(int(self.removed), int(self.letAgreed), Database.currentTimestampForDatabase(), self.propertyId)
 
                 self.db.runSqlCommand(sql)
 
@@ -274,21 +283,23 @@ class Property:
         text = text.lower()
 
         tokens = tokenizer.tokenize(text)
-        tokens = [ConvertToAscii(s) for s in tokens]
+        tokens = [ConvertToAscii(s).strip().strip('-').strip('_') for s in tokens]
         tokens = [s for s in tokens if not s in stopWords]
-        tokens = [s for s in tokens if not s.isdigit()]
+        tokens = [s for s in tokens if not any(c.isdigit() for c in s)]
+
+        self.num_tokens = len(tokens)
 
         stemmedTokens = [stemmer.stem(s).strip() for s in tokens]
         stemmedTokens = [s for s in stemmedTokens if len(s) > 0]
 
         if len(stemmedTokens) < 12:
             stemmedTokens = None
-            sql = "update property set stemmed_tokens = NULL where id = {0};"
-            sql = sql.format(self.propertyId)
+            sql = "update property set stemmed_tokens = NULL, num_tokens = {0} where id = {1};"
+            sql = sql.format(self.num_tokens, self.propertyId)
         else:
             stemmedTokens = ' '.join(stemmedTokens).strip()
-            sql = "update property set stemmed_tokens = '{0}' where id = {1};"
-            sql = sql.format(stemmedTokens, self.propertyId)
+            sql = "update property set stemmed_tokens = '{0}', num_tokens = {1} where id = {2};"
+            sql = sql.format(stemmedTokens, self.num_tokens, self.propertyId)
 
         self.stemmedTokens = stemmedTokens
 

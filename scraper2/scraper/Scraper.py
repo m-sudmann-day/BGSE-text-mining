@@ -70,11 +70,11 @@ def ScapeOneProperty(outcodeId, propertyId, isPremium):
 
     Property(db, outcodeId, propertyId, isPremium)
 
-def UpdateLetAgreeds(availabilityLag):
+def UpdateStatuses(availabilityLag):
 
     db = Database()
 
-    sql = u"select id from property where usable = 1 and let_agreed = 0 and availability_lag <= {0};"
+    sql = u"select id from property where usable = 1 and let_agreed = 0 and removed = 0 and availability_lag <= {0};"
     sql = sql.format(availabilityLag);
 
     pendingLetAgreed = db.runSqlQueryColumn(sql)
@@ -147,7 +147,8 @@ def CleanupText():
 
 #time.sleep(3*60*60)
 #print datetime.today()
-#UpdateLetAgreeds(21)
+#UpdateStatuses(21)
+#print datetime.today()
 
 #RunSentimentAnalysis()
 

@@ -100,6 +100,25 @@ class Database:
         conn.close()
         return values
 
+    def runSqlQueryTable(self, sql):
+
+        # Execute a SQL query and return a list of values
+        # from the first column.
+
+        sql = sql.encode("utf8")
+        conn = self.getConnection()
+        query = conn.query(sql)
+        result = conn.use_result()
+        values = []
+        while True:
+            row = result.fetch_row()
+            if (len(row) > 0 and len(row[0]) > 0):
+                values.append(row[0])
+            else:
+                break
+        conn.close()
+        return values
+
     def runSqlCommand(self, sql):
 
         # Execute a SQL query with no return value.

@@ -6,7 +6,7 @@
     <ProjectGuid>e0c31d17-4a84-4cc9-a8c7-d637f1c5b6d1</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>Corpus.py</StartupFile>
+    <StartupFile>Scraper.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
